@@ -112,6 +112,9 @@ def expand_node(node, probabilities, lm, n_gram, top_n_model, weights, memo):
       child = Node(node_value + node.value, word, node, node.level + 1)
       children.append(child)
     except KeyError: 
+      # Key error may result if the language model doesn't contain a 
+      # the request "path", in such a case we simply want to avoid
+      # visiting that node later 
       continue
 
   return children
@@ -146,7 +149,7 @@ def find_guess(probabilities, lm, n_gram, top_n_model, weights):
 def adjust_probs(probabilities):
   """
   "Shifts" probabilities down below zero
-  in order to not maintain a valid uniform cost search
+  in order to maintain a valid uniform cost search
 
   Ref: https://ai-nd.slack.com/files/U5F20UC2H/F6Q8E59NC/Summary_about_part_4__Recognition_project
   """
@@ -155,7 +158,6 @@ def adjust_probs(probabilities):
     adjusted = {}
     max_val = max(prob.values())
     for key, value in prob.items():
-      # impl from slack
       adjusted[key] = value - max_val
     adjusted_probabilities.append(adjusted)
   return adjusted_probabilities
